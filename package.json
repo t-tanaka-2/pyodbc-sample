@@ -1,0 +1,13 @@
+{
+  "name": "pyodbc-sample",
+  "devDependencies": {
+    "redoc-cli": "^0.13.2",
+    "serverless": "^2.66.0",
+    "serverless-deployment-bucket": "1.5.1",
+    "serverless-python-requirements": "^5.2.0",
+    "serverless-wsgi": "^2.0.2"
+  },
+  "scripts": {
+    "sls": "serverless"
+  }
+}

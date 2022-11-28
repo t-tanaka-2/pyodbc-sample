@@ -1,0 +1,58 @@
+# サービス名
+service: pyodbc-sample
+frameworkVersion: '2'
+plugins:
+  - serverless-deployment-bucket
+  - serverless-wsgi
+  - serverless-python-requirements
+provider:
+  name: aws
+  runtime: python3.8
+  # Lambdaハッシュバージョン
+  lambdaHashingVersion: 20201221
+  region: ap-northeast-1
+  stage: ${opt:stage, 'local'}
+  profile: ${self:provider.stage}
+  # lambdaデプロイ用バケット設定
+  deploymentBucket:
+    name: gxp-${self:provider.stage}-lambda-deployment-bucket
+  apiGateway:
+    # キーの値は自動生成
+    # 任意値を指定出来るが、provider配下ではfile参照できずでstage毎に分けられない
+    apiKeys:
+      - name: ${opt:stage}-${self:service}-key
+      - name: ${opt:stage}-salesforce-key
+# カスタム変数
+custom:
+  wsgi: # wsgi_handlerがリクエストを渡す先のFlaskアプリを指定
+    app: handler.app
+  pythonRequirements:
+    dockerizePip: true # docker-lambda上でビルドするためのオプション（非Pythonモジュールのコンパイル対策）
+    slim: true         # 必要なパッケージの中から不要なファイルを削除するオプション
+    slimPatterns:
+      - '**/node_modules/*'
+      - '**/venv/*'
+      - '**/layer/*'
+    noDeploy:
+      - pyodbc # Lambda Layerを使う
+# Lambda関数
+functions:
+  api:
+    # Pluginが生成するAPI GatewayのLambda起動イベントをuWSGI形式に変換するハンドラー
+    handler: wsgi_handler.handler
+    events:
+      - http:
+          path: /
+          method: GET
+          private: true
+      - http:
+          # パスのルーティングはFlaskアプリとしてhandler.pyの中で実施
+          path: /{proxy+}
+          method: GET
+          private: true
+    reservedConcurrency: 5 # 同時実行数の制限
+    environment: ${file(conf/${self:provider.stage}/function.yml):environment}
+    vpc: ${file(conf/${self:provider.stage}/function.yml):vpc}
+    layers: ${file(conf/${self:provider.stage}/function.yml):layers}
+    role: ${file(conf/${self:provider.stage}/function.yml):role}
+

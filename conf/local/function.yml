@@ -1,0 +1,26 @@
+# ${xxx}は環境に合わせて修正してください
+
+# Lambdaに設定する環境変数
+# 
+environment:
+  GXP_ODBC_DRIVER: SQL Server
+  GXP_DB_ENDPOINT: localhost,12345
+  GXP_DB_NAME: XXX
+  GXP_DB_USERNAME: XXX
+  GXP_DB_PASSWORD: XXX
+  ODBCINI: /opt/odbc.ini
+  ODBCSYSINI: /opt/
+
+# Lambda実行ロールのARN(localでは不要なのでダミー)
+role: arn:aws:iam::xxxxxxxxxxxx:role/core-data-viewer-local-lambdaRole
+
+vpc:
+  # VPC Lambdaのデプロイ先サブネットID(localでは不要なのでダミー)
+  subnetIds:
+    - subnet-xxxxxxxxxxxxxxxxx
+  # VPC LambdaにアタッチするセキュリティグループID(localでは不要なのでダミー)
+  securityGroupIds:
+    - sg-xxxxxxxxxxxxxxxxx
+
+# Lambda LayerのバージョンARN
+layers: arn:aws:lambda:ap-northeast-1:xxxxxxxxxxxx:layer:local-pyodbc-layer:1
